@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+    <script>
+        var app = angular.module('Sentiment',[]);
+
+        app.controller("MainCtrl", ['$scope', '$http', function($scope, $http) {
+
+          console.log('started')
+
+          $scope.sentence = "";
+          $scope.width = [0,0,0]
+          $scope.score = ["","",""]
+          $scope.total_width = 200;
+          $scope.stars = 0;
+          $scope.test = "TEST"
+
+          var lock = [true,true,true];
+          var base = window.location.href;
+          var base2 = window.location.host.split(":")[0]
+          console.log(base2);
+
+          $scope.predict = function () {
+            console.log("Prediction")
+            if($scope.sentence != "") {
+              (function (index) {
+                $http.get(base+$scope.sentence, {}).then(function(data) {
+                  console.log(data.data)
+                  move(data.data, index);
+                }, function(err) {
+                  console.log(err)
+                });
+              })(0);
+            } else {
+              $scope.stars = 0;
+              for(var i = 0; i <= 6; i++) {
+                $scope.score[0] = ""    
+                $scope.width[0] = 0 + 'px';
+              }
+            }
+          }
+
+          $scope.predict2 = function () {
+            for (var i = 1; i <= 2; i++) {
+              if($scope.sentence != "") {
+                (function (index) {
+                  var half = "http://"+base2+":5000/predict/algo";
+                  console.log(half);
+                  $http.get(half+i+"/"+$scope.sentence, {}).then(function(data) {
+                    move(data.data, index);
+                  });
+                })(i);
+              } else {
+                $scope.score[i] = ""
+                $scope.stars = 0;
+                $scope.width[i] = 0 + 'px';
+              }
+            }
+          }
+
+          var move = function (score, index) {
+            if(index == 0) score = (score/2.0)+0.5;
+            if(index == 0) {
+              $scope.stars = Math.ceil(score*5);
+            }
+            $scope.score[index] = Math.floor(score*100);
+            $scope.width[index] = Math.floor(score*$scope.total_width) + 'px';
+          }
+
+        }]);
+    </script>
+</head>
+
+<style>
+    body {
+        font-family: Arial;
+    }
+
+    #myProgress {
+        background-color: grey;
+        width: 200px;
+        border-radius: 5px;
+    }
+
+    #myBar {
+        width: 0px;
+        border-radius: 5px;
+        height: 30px;
+        background-color: green;
+    }
+
+    #myBar2 {
+        width: 0px;
+        border-radius: 5px;
+        height: 30px;
+        background-color: #00CED1;
+    }
+
+    #myBar3 {
+        width: 0px;
+        border-radius: 5px;
+        height: 30px;
+        background-color: orange;
+    }
+
+    table,
+    th,
+    td {
+        border: 0.25px solid grey;
+    }
+
+    th,
+    td {
+        padding: 6px;
+        text-align: left;
+    }
+
+    .btn {
+        color: #fff;
+        background-color: #d32323;
+        border: none;
+        position: absolute;
+        font-size: 12px;
+        bottom: 10px;
+        right: 20px;
+        border-radius: 10px;
+        padding: 7px;
+    }
+
+    .rating {
+        position: absolute;
+        left: 20px;
+        bottom: 10px;
+        color: #d42323;
+    }
+
+    .btn:hover {
+        color: #d42323;
+        background: #fff;
+        border: 1px #d42323;
+    }
+
+    textarea {
+        background-color: #efefef;
+        border: none;
+        border-radius: 5px;
+        display: block;
+        padding: 20px;
+        color: grey;
+        font-size: 20px;
+    }
+
+    .txt {
+        margin-top: 30px;
+        display: inline-block;
+        position: relative;
+    }
+
+    .rating span {
+        font-size: 20px;
+    }
+</style>
+
+<body ng-app="Sentiment" ng-controller="MainCtrl">
+
+    <div class="container">
+
+        <h1 style="text-decoration: underline"> Sentiment Analysis Benchmarking </h1>
+
+        <table id="keywords" cellspacing="0" cellpadding="0">
+            <thead>
+                <tr>
+                    <th><span>Sentiment Generator</span></th>
+                    <th><span>Sentiment Score</span></th>
+                    <th><span>Bar Visualizer</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="lalign">Google Natural Language API</td>
+                    <td>{{score[0]}}%</td>
+                    <td>
+                        <div style="display: inline-block" id="myProgress" ng-style="{ 'width' : total_width }">
+                            <div id="myBar" ng-style="{ 'width' : width[0] }"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="lalign">NLTK Snow Stemmer, Stop Word, No POS w/ Scikit Logistic Regression</td>
+                    <td>{{score[1]}}%</td>
+                    <td>
+                        <div style="display: inline-block" id="myProgress" ng-style="{ 'width' : total_width }">
+                            <div id="myBar2" ng-style="{ 'width' : width[1] }"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="lalign">No Stop Word, No POS w/ NLTK Naive Bayes</td>
+                    <td>{{score[2]}}%</td>
+                    <td>
+                        <div style="display: inline-block" id="myProgress" ng-style="{ 'width' : total_width }">
+                            <div id="myBar3" ng-style="{ 'width' : width[2] }"></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="txt">
+            <textarea ng-model="sentence" cols="50" rows="7" ng-change="predict()"></textarea>
+            <div>
+                <div class="rating">
+                    <span ng-show="stars >= 1">★</span>
+                    <span ng-show="stars >= 2">★</span>
+                    <span ng-show="stars >= 3">★</span>
+                    <span ng-show="stars >= 4">★</span>
+                    <span ng-show="stars >= 5">★</span>
+                </div>
+                <div>
+                    <button ng-click="predict2()" class="btn" id="rcorners1"> Predict Sentiment </button>
+                </div>
+
+            </div>
+        </div>
+
+
+</body>

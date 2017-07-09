@@ -1,0 +1,12 @@
+version: '2'
+services:
+  api-gateway:
+    build: ./api-gateway/
+    ports:
+     - "3000:3000"
+    image: "api-gateway:latest"
+  prediction-server:
+    build: ./prediction-server
+    ports:
+     - "5000:5000"
+    image: "prediction-server:latest"

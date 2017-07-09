@@ -1,0 +1,23 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "hello",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm start",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "deenaarif"
+  },
+  "keywords": [
+    "MIT"
+  ],
+  "author": "Deen Aariff",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/language": "^0.10.5",
+    "express": "^4.15.3"
+  }
+}
