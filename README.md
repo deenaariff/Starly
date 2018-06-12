@@ -47,8 +47,6 @@ To view the instructions on how to run the application, read below.
 
 # Sentiment Prediction Dashboard 
 
-* * *
-
 ## Running the application locally
 
 The Sentiment Prediction Dashboard Application is built using two services, the api-gateway and prediction-server, which are built using Node.js and Python/Fask respectively. To make this application easier to run locally, both services have been dockerized. To run these applications, you can build each container seperately, or run them using docker-compose. A docker-compose.yml file has been provided in the root folder.
